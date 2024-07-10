@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign Up Worker</title>
+  <link rel="stylesheet" href="signstyles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+  <!--Header------------------------------------------------------------------------------->
+  <header id="main-header">
+    <h1 id="header-title">Izify</h1>
+    <button id="homeBtn" onclick="goHome()" title="Home Page"><i class="fa-solid fa-house"></i></button>
+  </header>
+
+  <script>
+      function goHome() {
+      window.location.href = 'index.html';
+  }
+  </script>
+
+<body>
+  <div class="form-wrapper">
+    <div class="logoformParent">
+      <div class="logoform">
+        <img id="logo" src="logo.png" alt="">
+        <img id="logo2" src="logo2.png" alt="">
+      </div>
+    </div>
+    <div class="parentform-container">
+    <div class="form-container">
+      <div class="logoform2">
+        <img id="logo3" src="logo.png" alt="">
+      </div>
+      <h2 class="create-account-heading">Register New Worker</h2>
+      <div class="form-group">
+        <label for="fnameInp">Name</label>
+        <input type="text" id="fnameInp" placeholder="Worker Name">
+      </div>
+      <div class="form-group">
+        <label for="lnameInp">Worker Id</label>
+        <input type="text" id="lnameInp" placeholder="Worker Id">
+      </div>
+      <form id="MainForm">
+        <div class="form-group">
+          <label for="emailInp">Email Address</label>
+          <input type="email" id="emailInp" placeholder="Email Address">
+        </div>
+        <div class="form-group">
+          <label for="passwordInp">New Password</label>
+          <div class="password-container">
+            <input type="password" id="passwordInp" placeholder="Password">
+            <button type="button" class="eye-btn" id="togglePassword">Show Password</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+  <script>
+    const togglePasswordButton = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('passwordInp');
+
+    togglePasswordButton.addEventListener('click', function () {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.textContent = type === 'password' ? 'Show Password' : 'Hide Password';
+    });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBSWNkZIaxudvQFQKiWQl0WcZBh--1UliU",
+        authDomain: "izify-f0dec.firebaseapp.com",
+        databaseURL: "https://izify-f0dec-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "izify-f0dec",
+        storageBucket: "izify-f0dec.appspot.com",
+        messagingSenderId: "327248340505",
+        appId: "1:327248340505:web:bc9a33d4b7505d97cb6c88",
+        measurementId: "G-RTB0Q895P0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const adminInfo = JSON.parse(localStorage.getItem('admin-info'));
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+    let uid;
+    if (adminInfo && adminCreds) {
+      uid = adminCreds.uid;
+    }
+
+    let EmailInp = document.getElementById('emailInp');
+    let PassInp = document.getElementById('passwordInp');
+    let FnameInp = document.getElementById('fnameInp');
+    let LnameInp = document.getElementById('lnameInp');
+    let MainForm = document.getElementById('MainForm');
+
+    let RegisterUser = evt => {
+      evt.preventDefault();
+
+      createUserWithEmailAndPassword(auth, EmailInp.value, PassInp.value)
+        .then((credentials) => {
+          if (uid) {
+            set(ref(db, 'AdminsAuthList/' + uid + '/workersAuthList/' + credentials.user.uid), {
+              workername: FnameInp.value,
+              workerid: LnameInp.value,
+              workeremail: EmailInp.value
+            }).then(() => {
+              alert('Worker registered successfully');
+              window.location.href = "pageAdmin.html";
+            }).catch((error) => {
+              alert('Register Fail.');
+              console.error('Database write error:', error);
+            });
+          } else {
+            alert('No admin UID found.');
+            console.error('No admin UID found.');
+          }
+        })
+        .catch((error) => {
+          alert('Register Fail');
+          console.error('Register Fail');
+        });
+    }
+
+    MainForm.addEventListener('submit', RegisterUser);
+    
+  </script>
+</body>
+</html>

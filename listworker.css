@@ -1,0 +1,206 @@
+*{
+  font-family: Arial, Helvetica
+}
+
+body {
+  margin: 0; /* Remove default margin */
+  padding-top: 10px; /* Adjust this value based on the header height */
+  background: url('white.jpg') no-repeat;
+  background-size: cover; /* or specify dimensions like 100px 100px */
+  background-attachment: fixed;
+}
+
+#main-header {
+  background: linear-gradient(60deg, #445766, #5c7486, #809db4);
+  position: fixed;
+  top: 0;
+  height: 30px;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px 0; /* Optional: add padding inside the header */
+  display: flex;
+  justify-content: space-between; /* Distribute space between child elements */
+  align-items: center; /* Center child elements vertically */
+}
+
+#header-title {
+  margin-left: 10px;
+  font-size: 2.2rem;
+  color: #ffffff;
+}
+
+/* Container Styles */
+#workerdetailcontainer {
+  width: 80%;
+  margin: 20px auto;
+  padding: 20px 30px;
+  background-color: #ffffffc4;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  overflow: auto;
+  border-left-width: 5px;
+  border-left-color: #5e788c;
+  border-left-style: solid;
+  border-right-width: 5px;
+  border-right-color: #5e788c;
+  border-right-style: solid;
+  border-top: none;
+  border-bottom: none;
+}
+/* Heading Styles */
+#workerdetailcontainer h1 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 20px;
+}
+ 
+
+
+#tablebutton {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: fit-content;
+  color: white;
+  padding: 5px 8px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#tablebutton:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+#loadPageButton {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  margin-left: 15px;
+  width: fit-content;
+  color: white;
+  padding: 5px 25px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  margin-top: 60px;
+}
+
+#loadPageButton:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+hr {
+  border: none;
+  border-top: 2px solid #ddd;
+  margin: 40px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    margin: auto;
+    border-spacing: 0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 7px 0px;
+    text-align: center;
+    word-wrap: break-word;
+    max-width: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+}
+
+th {
+    background-color: #f0f0f0;
+    color: #333;
+    position: relative;
+}
+
+td {
+    background:#ffffff;
+    color: #444;
+    position: relative;
+}
+
+
+
+/* Borders */
+th:first-child {
+    border-top-left-radius: 10px;
+}
+
+th:last-child {
+    border-top-right-radius: 10px;
+}
+
+td:first-child {
+  border-bottom-left-radius: 10px;
+}
+td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+*:focus {
+  outline: none;
+}
+
+
+/* Editable cells */
+td[contenteditable="true"] {
+    background-color: #ffffff;
+}
+
+th[contenteditable="true"] {
+    background-color: #97979b30;
+}
+
+
+
+
+td input[type="date"],
+td input[type="datetime-local"] {
+    width: 100%;
+    box-sizing: border-box; /* Ensures the input fits nicely within the th */
+    border: none; /* Removes default border for a cleaner look */
+    background: none; /* Removes default background */
+    font-family: inherit; /* Inherits font from th */
+    font-size: inherit; /* Inherits font size from th */
+}
+
+
+#deleteaccBtn {
+  display: flex;
+  justify-content: end;
+}
+
+
+#deleteaccButton {
+  background-color: #485965; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: fit-content;
+  color: white;
+  padding: 5px 8px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#deleteaccButton:hover {
+  background-color: #2d3b4a; /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="listworker.css">
+    <title>Worker Details</title>
+
+</head>
+<body>
+    <!--Header------------------------------------------------------------------------------->
+    <header id="main-header">
+        <h1 id="header-title">Izify</h1>
+    </header>
+
+    <button id="loadPageButton" onclick="loadAdminPage()">Back</button>
+    <div id="workerdetailcontainer">
+        <h1>Worker Details</h1>
+        <div id="workerDetailsContainer"></div>
+        <div id="deleteaccBtn">
+            <button id="deleteaccButton">Delete Account</button>
+        </div>
+        <hr>
+        <h1>Assigned Task</h1>
+        <div id="workerSentListContainer"></div>
+        <hr>
+        <h1>Accepted Task</h1>
+        <div id="acceptedListContainer"></div>
+        <hr>
+        <h1>Rejected Task</h1>
+        <div id="rejectedListContainer"></div>
+        <hr>
+        <h1>Unassigned Task</h1>
+        <div id="allSentListContainer"></div>
+    </div>
+
+    <script>
+        function loadAdminPage() {
+            window.location.href = 'pageAdmin.html';
+        }
+    </script>
+    
+
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+        import { getAuth, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSWNkZIaxudvQFQKiWQl0WcZBh--1UliU",
+            authDomain: "izify-f0dec.firebaseapp.com",
+            databaseURL: "https://izify-f0dec-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "izify-f0dec",
+            storageBucket: "izify-f0dec.appspot.com",
+            messagingSenderId: "327248340505",
+            appId: "1:327248340505:web:bc9a33d4b7505d97cb6c88",
+            measurementId: "G-RTB0Q895P0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+        const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+        const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+        let auid;
+        if (adminCreds) {
+            auid = adminCreds.uid;
+        }
+
+        let wuid;
+        if (workerCreds) {
+            wuid = workerCreds.workerUid;
+        }
+
+        document.getElementById('deleteaccButton').addEventListener('click', async () => {
+        if (!wuid) {
+            alert('No user ID found to delete.');
+            return;
+        }
+
+        try {
+            // Remove user data from the database
+            await remove(ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}`));
+
+            alert('User data deleted successfully.');
+        } catch (error) {
+            console.error('Error deleting user data:', error);
+            alert('Error deleting user data. Please try again.');
+        }
+    });
+
+    // Fetch worker details from Firebase-----------------------------------------------
+    if (auid && wuid) {
+        const workerRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}`);
+        onValue(workerRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const workerData = snapshot.val();
+                displayWorkerDetails(workerData);
+            } else {
+                console.error('No data available');
+            }
+        });
+    } else {
+        console.error('Admin UID or Worker UID is missing');
+    }
+
+
+
+
+    
+    // Function to display worker details ------------------------------------------------------------
+    function displayWorkerDetails(workerData) {
+        const workerDetailsContainer = document.getElementById('workerDetailsContainer');
+        workerDetailsContainer.innerHTML = `
+            <div class="worker-info">
+                <p><strong>Name:</strong> ${workerData.workername}</p>
+                <p><strong>ID:</strong> ${workerData.workerid}</p>
+                <p><strong>Email:</strong> ${workerData.workeremail}</p>
+            </div>
+        `;
+    }
+
+
+
+
+    // Display all sent funtion -----------------------------------------------------------------------
+    function displaySentTable() {
+        const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+        if (adminCreds) {
+            const uid = adminCreds.uid;
+            const sentTableRef = ref(db, `AdminsAuthList/${uid}/SentTable`);
+
+            onValue(sentTableRef, (snapshot) => {
+                const sentTableContainer = document.getElementById('allSentListContainer');
+                sentTableContainer.innerHTML = ''; // Clear any existing content
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(childSnapshot => {
+                        const tableData = childSnapshot.val();
+                        
+                        const table = document.createElement('table');
+                        const thead = document.createElement('thead');
+                        const tbody = document.createElement('tbody');
+
+                        // Create header row
+                        const headerRow = document.createElement('tr');
+                        if (Array.isArray(tableData.headers)) {
+                            tableData.headers.forEach(header => {
+                                const th = document.createElement('th');
+                                th.id = header.id;
+                                th.innerText = header.content;
+                                headerRow.appendChild(th);
+                            });
+                        }
+                        // Create assign button header
+                        const assignButtonTh = document.createElement('th');
+                        assignButtonTh.innerText = '';
+                        headerRow.appendChild(assignButtonTh);
+                        thead.appendChild(headerRow);
+
+                        // Create body rows
+                        if (Array.isArray(tableData.rows)) {
+                            tableData.rows.forEach((rowData, rowIndex) => {
+                                const row = document.createElement('tr');
+                                if (Array.isArray(rowData)) {
+                                    rowData.forEach(cellData => {
+                                        const td = document.createElement('td');
+                                        td.id = cellData.id;
+                                        if (cellData.type === 'datetime') {
+                                            const input = document.createElement('input');
+                                            input.type = 'datetime-local';
+                                            input.value = cellData.content;
+                                            td.appendChild(input);
+                                        } else {
+                                            td.innerText = cellData.content;
+                                        }
+                                        row.appendChild(td);
+                                    });
+                                }
+                                // Create assign button cell
+                                const assignButtonTd = document.createElement('td');
+                                const assignButton = document.createElement('button');
+                                assignButton.id = 'tablebutton';
+                                assignButton.innerText = 'Assign';
+                                assignButton.addEventListener('click', () => {
+                                    moveItem(childSnapshot.key, tableData);
+                                });
+                                assignButtonTd.appendChild(assignButton);
+                                row.appendChild(assignButtonTd);
+
+                                tbody.appendChild(row);
+                            });
+                        }
+
+                        table.appendChild(thead);
+                        table.appendChild(tbody);
+                        sentTableContainer.appendChild(table);
+                    });
+                } else {
+                    console.log('No task');
+                    sentTableContainer.innerHTML = '<p>No task</p>';
+                }
+            }, (error) => {
+                console.error('Error fetching sent table data:', error);
+            });
+        } else {
+            console.error('Admin credentials not found in local storage.');
+        }
+    }
+
+
+    
+    // Call the function to display the sent table
+    displaySentTable();
+
+
+
+    // Function to move item to worker's assigned list and delete from the original list
+    function moveItem(itemKey, tableData) {
+        const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+        const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+        if (adminCreds && workerCreds) {
+            const adminUid = adminCreds.uid;
+            const workerUid = workerCreds.workerUid;
+
+            const assignedListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/assignedList/${itemKey}`);
+            const originalItemRef = ref(db, `AdminsAuthList/${adminUid}/SentTable/${itemKey}`);
+
+            set(assignedListRef, tableData).then(() => {
+                console.log(`Item ${itemKey} moved to assigned list.`);
+                return remove(originalItemRef);  // Delete the item from the original list
+            }).then(() => {
+                console.log(`Item ${itemKey} deleted from SentTable.`);
+            }).catch((error) => {
+                console.error('Error moving item:', error);
+            });
+        } else {
+            console.error('Admin or Worker credentials not found in local storage.');
+        }
+    }
+
+
+
+
+//displayassigned list -----------------------------------------------------------------
+    function displayAssignedList() {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+    let auid;
+    if (adminCreds) {
+        auid = adminCreds.uid;
+    }
+
+    let wuid;
+    if (workerCreds) {
+        wuid = workerCreds.workerUid;
+    }
+
+    if (auid && wuid) {
+        const assignedListRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}/assignedList`);
+
+        onValue(assignedListRef, (snapshot) => {
+            const sentTableContainer = document.getElementById('workerSentListContainer');
+            sentTableContainer.innerHTML = ''; // Clear any existing content
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const tableData = childSnapshot.val();
+                    
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    if (Array.isArray(tableData.headers)) {
+                        tableData.headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.id = header.id;
+                            th.innerText = header.content;
+                            headerRow.appendChild(th);
+                        });
+                    }
+                    // Create unassign button header
+                    const unassignButtonTh = document.createElement('th');
+                    unassignButtonTh.innerText = '';
+                    headerRow.appendChild(unassignButtonTh);
+                    thead.appendChild(headerRow);
+
+                    // Create body rows
+                    if (Array.isArray(tableData.rows)) {
+                        tableData.rows.forEach((rowData, rowIndex) => {
+                            const row = document.createElement('tr');
+                            if (Array.isArray(rowData)) {
+                                rowData.forEach(cellData => {
+                                    const td = document.createElement('td');
+                                    td.id = cellData.id;
+                                    if (cellData.type === 'datetime') {
+                                        const input = document.createElement('input');
+                                        input.type = 'datetime-local';
+                                        input.value = cellData.content;
+                                        td.appendChild(input);
+                                    } else {
+                                        td.innerText = cellData.content;
+                                    }
+                                    row.appendChild(td);
+                                });
+                            }
+                            // Create unassign button cell
+                            const unassignButtonTd = document.createElement('td');
+                            const unassignButton = document.createElement('button');
+                            unassignButton.id = 'tablebutton';
+                            unassignButton.innerText = 'Unassign';
+                            unassignButton.addEventListener('click', () => {
+                                unassignItem(childSnapshot.key, tableData);
+                            });
+                            unassignButtonTd.appendChild(unassignButton);
+                            row.appendChild(unassignButtonTd);
+
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    sentTableContainer.appendChild(table);
+                });
+            } else {
+                console.log('No assigned table data found.');
+                sentTableContainer.innerHTML = '<p>No task</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching assigned table data:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Function to unassign item and move it back to the sent table
+function unassignItem(itemKey, tableData) {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+    if (adminCreds && workerCreds) {
+        const adminUid = adminCreds.uid;
+        const workerUid = workerCreds.workerUid;
+
+        const assignedListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/assignedList/${itemKey}`);
+        const sentTableRef = ref(db, `AdminsAuthList/${adminUid}/SentTable/${itemKey}`);
+
+        set(sentTableRef, tableData).then(() => {
+            console.log(`Item ${itemKey} moved back to sent table.`);
+            return remove(assignedListRef);  // Delete the item from the assigned list
+        }).then(() => {
+            console.log(`Item ${itemKey} deleted from assigned list.`);
+        }).catch((error) => {
+            console.error('Error moving item:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Call the function to display the assigned list
+displayAssignedList();
+
+
+
+
+
+//displayaccepted list -----------------------------------------------------------------
+function displayAcceptedList() {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+    let auid;
+    if (adminCreds) {
+        auid = adminCreds.uid;
+    }
+
+    let wuid;
+    if (workerCreds) {
+        wuid = workerCreds.workerUid;
+    }
+
+    if (auid && wuid) {
+        const acceptedListRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}/acceptedList`);
+
+        onValue(acceptedListRef, (snapshot) => {
+            const sentTableContainer = document.getElementById('acceptedListContainer');
+            sentTableContainer.innerHTML = ''; // Clear any existing content
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const tableData = childSnapshot.val();
+                    
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    if (Array.isArray(tableData.headers)) {
+                        tableData.headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.id = header.id;
+                            th.innerText = header.content;
+                            headerRow.appendChild(th);
+                        });
+                    }
+                    // Create unaccepted button header
+                    const unacceptedButtonTh = document.createElement('th');
+                    unacceptedButtonTh.innerText = '';
+                    headerRow.appendChild(unacceptedButtonTh);
+                    thead.appendChild(headerRow);
+
+                    // Create body rows
+                    if (Array.isArray(tableData.rows)) {
+                        tableData.rows.forEach((rowData, rowIndex) => {
+                            const row = document.createElement('tr');
+                            if (Array.isArray(rowData)) {
+                                rowData.forEach(cellData => {
+                                    const td = document.createElement('td');
+                                    td.id = cellData.id;
+                                    if (cellData.type === 'datetime') {
+                                        const input = document.createElement('input');
+                                        input.type = 'datetime-local';
+                                        input.value = cellData.content;
+                                        td.appendChild(input);
+                                    } else {
+                                        td.innerText = cellData.content;
+                                    }
+                                    row.appendChild(td);
+                                });
+                            }
+                            // Create unassign button cell
+                            const unacceptedButtonTd = document.createElement('td');
+                            const unacceptedButton = document.createElement('button');
+                            unacceptedButton.id = 'tablebutton';
+                            unacceptedButton.innerText = 'Unassign';
+                            unacceptedButton.addEventListener('click', () => {
+                                unacceptedItem(childSnapshot.key, tableData);
+                            });
+                            unacceptedButtonTd.appendChild(unacceptedButton);
+                            row.appendChild(unacceptedButtonTd);
+
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    sentTableContainer.appendChild(table);
+                });
+            } else {
+                console.log('No assigned table data found.');
+                sentTableContainer.innerHTML = '<p>No task</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching assigned table data:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Function to unaccepted item and move it back to the sent table
+function unacceptedItem(itemKey, tableData) {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+    if (adminCreds && workerCreds) {
+        const adminUid = adminCreds.uid;
+        const workerUid = workerCreds.workerUid;
+
+        const acceptedListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/acceptedList/${itemKey}`);
+        const sentTableRef = ref(db, `AdminsAuthList/${adminUid}/SentTable/${itemKey}`);
+
+        set(sentTableRef, tableData).then(() => {
+            console.log(`Item ${itemKey} moved back to sent table.`);
+            return remove(acceptedListRef);  // Delete the item from the assigned list
+        }).then(() => {
+            console.log(`Item ${itemKey} deleted from assigned list.`);
+        }).catch((error) => {
+            console.error('Error moving item:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Call the function to display the assigned list
+displayAcceptedList();
+
+
+
+//displayRejected list -----------------------------------------------------------------
+function displayRejectedList() {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+    let auid;
+    if (adminCreds) {
+        auid = adminCreds.uid;
+    }
+
+    let wuid;
+    if (workerCreds) {
+        wuid = workerCreds.workerUid;
+    }
+
+    if (auid && wuid) {
+        const rejectedListRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}/rejectedList`);
+
+        onValue(rejectedListRef, (snapshot) => {
+            const sentTableContainer = document.getElementById('rejectedListContainer');
+            sentTableContainer.innerHTML = ''; // Clear any existing content
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const tableData = childSnapshot.val();
+                    
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    if (Array.isArray(tableData.headers)) {
+                        tableData.headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.id = header.id;
+                            th.innerText = header.content;
+                            headerRow.appendChild(th);
+                        });
+                    }
+                    // Create unassign button header
+                    const unassignButtonTh = document.createElement('th');
+                    unassignButtonTh.innerText = '';
+                    headerRow.appendChild(unassignButtonTh);
+                    thead.appendChild(headerRow);
+
+                    // Create body rows
+                    if (Array.isArray(tableData.rows)) {
+                        tableData.rows.forEach((rowData, rowIndex) => {
+                            const row = document.createElement('tr');
+                            if (Array.isArray(rowData)) {
+                                rowData.forEach(cellData => {
+                                    const td = document.createElement('td');
+                                    td.id = cellData.id;
+                                    if (cellData.type === 'datetime') {
+                                        const input = document.createElement('input');
+                                        input.type = 'datetime-local';
+                                        input.value = cellData.content;
+                                        td.appendChild(input);
+                                    } else {
+                                        td.innerText = cellData.content;
+                                    }
+                                    row.appendChild(td);
+                                });
+                            }
+                            // Create unassign button cell
+                            const unassignButtonTd = document.createElement('td');
+                            const unassignButton = document.createElement('button');
+                            unassignButton.id = 'tablebutton';
+                            unassignButton.innerText = 'Unassign';
+                            unassignButton.addEventListener('click', () => {
+                                unassignrItem(childSnapshot.key, tableData);
+                            });
+                            unassignButtonTd.appendChild(unassignButton);
+                            row.appendChild(unassignButtonTd);
+
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    sentTableContainer.appendChild(table);
+                });
+            } else {
+                console.log('No assigned table data found.');
+                sentTableContainer.innerHTML = '<p>No task</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching assigned table data:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Function to unassign item and move it back to the sent table
+function unassignrItem(itemKey, tableData) {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    const workerCreds = JSON.parse(localStorage.getItem('workerlist-info'));
+
+    if (adminCreds && workerCreds) {
+        const adminUid = adminCreds.uid;
+        const workerUid = workerCreds.workerUid;
+
+        const assignListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/rejectedList/${itemKey}`);
+        const sentTableRef = ref(db, `AdminsAuthList/${adminUid}/SentTable/${itemKey}`);
+
+        set(sentTableRef, tableData).then(() => {
+            console.log(`Item ${itemKey} moved back to sent table.`);
+            return remove(assignListRef);  // Delete the item from the assigned list
+        }).then(() => {
+            console.log(`Item ${itemKey} deleted from assigned list.`);
+        }).catch((error) => {
+            console.error('Error moving item:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Call the function to display the assigned list
+displayRejectedList();
+
+
+</script>
+</body>
+</html>

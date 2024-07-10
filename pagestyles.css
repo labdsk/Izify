@@ -1,0 +1,524 @@
+*{
+    font-family: Arial, Helvetica
+}
+ 
+h1 {
+  font-size: 22px;
+}
+
+#tablebutton {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: fit-content;
+  color: white;
+  padding: 5px 10px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+
+#main-header {
+    background: linear-gradient(60deg, #445766, #5c7486, #809db4);
+    position: fixed;
+    top: 0;
+    height: 30px;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px 0; /* Optional: add padding inside the header */
+    display: flex;
+    justify-content: space-between; /* Distribute space between child elements */
+    align-items: center; /* Center child elements vertically */
+}
+
+
+
+body {
+    margin: 0; /* Remove default margin */
+    padding-top: 60px; /* Adjust this value based on the header height */
+    background: url('white.jpg') no-repeat;
+    background-size: cover; /* or specify dimensions like 100px 100px */
+    background-attachment: fixed;
+}
+
+
+.modern-button {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: 100%;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.clmodern-button {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: 100%;
+  color: white;
+  padding: 5px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.upmodern-button {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: fit-content;
+  color: white;
+  padding: 5px 15px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.upmodern-button:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clmodern-button:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+.modern-button:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-button:active {
+  background-color: #52667a; /* Slightly different dark grey */
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.5);
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+
+
+.nav-menu {
+    display: flex;
+    gap: 15px; /* Space between navigation links */
+    margin-right: 20px;
+}
+.nav-menu a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+#header-title {
+    margin-left: 10px;
+    font-size: 2.2rem;
+    color: #ffffff;
+}
+
+/* navbar ---------------------------------------------------------------------*/
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to right, #445766, #5c7486e9, #809db4e1);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    overflow-x: hidden;
+    transition: 0.6s;
+    padding-top: 20px;
+    margin-top: 65px;
+  }
+  
+.button-class {
+    padding: 10px 100% 10px 15px;
+    text-decoration: none;
+    font-size: 16px;
+    background-color: #6a6a6e00;
+    color: hsl(0, 0%, 100%);
+    display: block;
+    border: none;
+    transition: 0.3s;
+    margin-left: -6px;
+}
+
+
+  
+.button-class:hover {
+    color: #ffffff;
+    background: linear-gradient(to right, #2e3e4e, #53697a, #84a1b8);
+    margin-left: 0px;
+}
+  
+
+  
+
+  
+  .openbtn {
+    font-size: 30px;
+    cursor: pointer;
+    background:  linear-gradient(to left, #32414b,#648094d6);
+    color: #ffffff;
+    height: 50%;
+    padding: 4px;
+    border: none;
+    position: fixed;
+    z-index: 0;
+    top: 20px;
+    left: 10px;
+    margin-top: 205px;
+    border-radius: 50px;
+    transition: 0.6s;
+  }
+  
+  .openbtn:hover {
+    background:  linear-gradient(to left, #2e3a42,#648094d6);
+    height: 51%;
+    top: 16px;
+  }
+  
+  @media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+  }
+
+  /* table --------------------------------------------*/
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    margin: auto;
+    border-spacing: 0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px 0px;
+    text-align: center;
+    word-wrap: break-word;
+    max-width: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+}
+
+th {
+    background-color: #f0f0f0;
+    color: #333;
+    position: relative;
+}
+
+td {
+    background:#ffffff;
+    color: #444;
+    position: relative;
+}
+
+
+
+/* Borders */
+th:first-child {
+    border-top-left-radius: 10px;
+}
+
+th:last-child {
+    border-top-right-radius: 10px;
+}
+
+td:first-child {
+  border-bottom-left-radius: 10px;
+}
+td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+*:focus {
+  outline: none;
+}
+
+
+/* Editable cells */
+td[contenteditable="true"] {
+    background-color: #ffffff;
+}
+
+th[contenteditable="true"] {
+    background-color: #97979b30;
+}
+
+
+
+
+td input[type="date"],
+td input[type="datetime-local"] {
+    width: 100%;
+    box-sizing: border-box; /* Ensures the input fits nicely within the th */
+    border: none; /* Removes default border for a cleaner look */
+    background: none; /* Removes default background */
+    font-family: inherit; /* Inherits font from th */
+    font-size: inherit; /* Inherits font size from th */
+}
+
+
+
+
+.maincontainer {
+  position: absolute;
+  background-color: #ffffffc4;
+  transition: left 0.7s;
+  width: 75%; /* Changed to percentage-based width */
+  margin-top: 5px; /* Add 50px margin to the top */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  padding: 10px 30px;
+  z-index: 0;
+  left: 0; /* Centered */
+  right: 0; /* Centered */
+  display: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-left-width: 5px;
+  border-left-color: #5e788c;
+  border-left-style: solid;
+  border-right-width: 5px;
+  border-right-color: #5e788c;
+  border-right-style: solid;
+  border-top: none;
+  border-bottom: none;
+}
+
+
+#generatedtablecontainer {
+  margin-top: 0px;
+}
+
+
+#titlemodifpage {
+  margin-top: 20px;
+}
+
+.delete-button {
+  background-color: rgb(255, 71, 71);
+  color: white;
+  width: 100%;
+  margin-top: -10px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.delete-button:hover {
+  background-color: rgb(238, 0, 0); /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+#deleteButton {
+  background-color: rgb(255, 71, 71);
+  color: white;
+  margin-top: -10px;
+  margin-left: -10px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#deleteButton:hover {
+  background-color: rgb(238, 0, 0); /* Dark grey */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+#workerlistdiv {
+  background: linear-gradient(60deg, #445766, #5c7486d6, #809db4cb);
+  border: none;
+  border-radius: 7px;
+  color: white;
+  padding: 3px 15px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#workerlistdiv:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateX(6px);
+  box-shadow: -5px 0 6px rgba(0, 0, 0, 0.2);
+}
+
+/* custom text -----------------------------------------------------------*/
+
+#customText {
+  padding: 8px 10px;
+  margin-bottom: 20px;
+  background-color: #eeeeee;
+  border-radius: 8px 10px;
+}
+#customText2 {
+  background-color: #eeeeee;
+  border: none;
+  padding: 8px 10px;
+  text-align: center;
+  border-radius: 8px 12px;
+}
+#customText3 {
+  background-color: #eeeeee;
+  border: none;
+  text-align: center;
+  padding: 8px 10px;
+  border-radius: 8px 12px;
+}
+
+
+/* worker list ---------------------------------------------------------------------*/
+.worker {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+
+/* worker page======================================================================= */
+
+.space {
+  margin-top: 30px;
+}
+
+
+
+
+/* Task List ---------------------------------------------------------------------*/
+
+.checkbox-container {
+  display: flex;
+  margin-bottom: 10px;
+  justify-content: right;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 5px;
+  margin-left: 10PX;
+  transform: scale(1.3);
+}
+
+.checkbox-container label {
+  font-size: 17px;
+  color: #333;
+}
+
+/* profile -------------------------------------------------------------*/
+
+#copyButtonId {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: fit-content;
+  color: white;
+  padding: 3px 7px;
+  font-size: 14px;
+  margin-left: 5px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#copyButtonId:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+#linebreakid {
+  margin: 50px;
+}
+
+#displaydatabaseprofilecontainer {
+  margin-top: 10px;
+}
+
+#comadmnameidbr {
+  display: block; /* Ensures the <br> behaves like a block element */
+  height: 10px; /* Adjust the height as needed */
+  content: "\00a0"; /* Ensures the <br> is visible with height */
+}
+
+#companyNameLbl {
+  font-weight: bold;
+}
+#adminNameLbl {
+  font-weight: bold;
+}
+.profileLabel {
+  font-weight: bold;
+}
+
+.editbutton {
+  background-color: #647b8b; /* Light grey */
+  border: none;
+  border-radius: 8px 12px;
+  width: fit-content;
+  color: white;
+  margin-top: 5px;
+  padding: 3px 7px;
+  font-size: 14px;
+  margin-left: 5px;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.editbutton:hover {
+  background-color: #536f8b; /* Dark grey */
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+hr {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.profileinput {
+  width: 50%;
+  border: none;
+  font-size: 15.5px;
+}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home</title>
+  <link rel="stylesheet" href="signstyles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+  <!--Header------------------------------------------------------------------------------->
+  <header id="main-header">
+    <h1 id="header-title">Izify</h1>
+  </header>
+
+  <body>
+    <div class="form-wrapper">
+      <div class="logoformParent">
+        <div class="logoform">
+          <img id="logo" src="logo.png" alt="">
+          <img id="logo2" src="logo2.png" alt="">
+        </div>
+      </div>
+      <div class="parentform-container">
+      <div class="form-container">
+        <div class="logoform2">
+          <img id="logo3" src="logo.png" alt="">
+        </div>
+        <h2 class="create-account-heading">Sign In</h2>
+        <div class="form-group">
+          <div id="loginCon">
+              <button class="loginBtn" onclick="goadminlogin()"> Admin <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+              <button class="loginBtn" onclick="goworkerlogin()"> Worker <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+            <button id="Admin" class="pageBtn" onclick="goadminPage()">
+                 Admin Page 
+            </button>
+            <button id="worker" class="pageBtn" onclick="goworkerPage()">
+                 Worker Page
+            </button>
+        </div>
+        <div class="form-group">
+            <label for="goregisterAdmin">Don't have any account yet?</label>
+            <button class="loginBtn" onclick="goregisterAdmin()">Register New Account Here</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    function goadminlogin() {
+        window.location.href = 'inAdmin.html';
+    }
+    function goworkerlogin() {
+        window.location.href = 'inWorker.html';
+    }
+    function goadminPage() {
+        window.location.href = 'pageAdmin.html';
+    }
+    function goworkerPage() {
+        window.location.href = 'pageWorker.html';
+    }
+    function goregisterAdmin() {
+        window.location.href = 'upAdmin.html';
+    }
+</script>
+
+  <script>
+    function replaceButtonText() {
+        // Get the admin and worker info from localStorage
+        const adminInfo = localStorage.getItem('admin-info');
+        const workerInfo = localStorage.getItem('worker-info');
+
+        // Check if adminInfo exists and is not null
+        if (adminInfo) {
+            const adminData = JSON.parse(adminInfo);
+            const adminButton = document.getElementById('Admin');
+            
+            // Replace the existing text with the admin name and icon
+            adminButton.innerHTML = `<i class="fa-solid fa-user"></i> &nbsp; ${adminData.adminname}`;
+        }
+
+        // Check if workerInfo exists and is not null
+        if (workerInfo) {
+            const workerData = JSON.parse(workerInfo);
+            const workerButton = document.getElementById('worker');
+            
+            // Replace the existing text with the worker name and icon
+            workerButton.innerHTML = `<i class="fa-regular fa-user"></i> &nbsp; ${workerData.workername}`;
+        }
+    }
+
+    // Call the function to replace button text on page load
+    window.onload = replaceButtonText;
+</script>
+</body>
+</html>

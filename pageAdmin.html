@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="pagestyles.css">
+</head>
+<body>
+<!--Header------------------------------------------------------------------------------->
+    <header id="main-header">
+        <h1 id="header-title">Izify</h1>
+    </header>
+</body>
+<script>
+    // Retrieve the workername from localStorage
+    const workerInfo = localStorage.getItem('admin-info');
+    if (workerInfo) {
+        const workerData = JSON.parse(workerInfo);
+        const adminName = workerData.companyname;
+
+        // Replace the workername in the header title
+        if (adminName) {
+            const headerTitle = document.getElementById('header-title');
+            headerTitle.textContent = `Izify - ${adminName}`;
+        }
+    }
+</script>
+
+<!-- Inside sidenav ------------------------------------------------------------------->
+<div id="mySidenav" class="sidenav">
+    <button class="button-class" onclick="loadHomePage()">Home</button>
+    <hr>
+    <button class="button-class" data-specific-id="profileButton" onclick="showProfileContainer()">Profile</button>
+    <button class="button-class" data-specific-id="generateButton" onclick="showGenerateContainer()">Form&nbsp;Buider</button>
+    <button class="button-class" data-specific-id="displayTableListButton" onclick="showDisplayTableListContainer()">Task&nbsp;List</button>
+    <button class="button-class" data-specific-id="workerListButton" onclick="showWorkerListContainer()">Worker&nbsp;List</button>
+    <hr>
+    <button class="button-class" onclick="loadRegisterWorkerPage()">Register&nbsp;Worker</button>
+    <button class="button-class" onclick="signOut()">Sign&nbsp;Out</button>
+</div>
+<button class="openbtn" id="openBtn" onclick="toggleNav()"></button>
+
+<!-- register worker link------------------------------------------------------------->
+<script>
+    function loadRegisterWorkerPage() {
+        if (confirm('Register new worker?')) {
+            window.location.href = 'upWorker.html';
+        }
+    }
+</script>
+<!-- home page------------------------------------------------------------->
+<script>
+    function loadHomePage() {
+        window.location.href = 'index.html';
+    }
+</script>
+<!-- sign out------------------------------------------------------------->
+<script>
+    function signOut() {
+        if (confirm('Sign Out?')) {
+            localStorage.removeItem('admin-creds');
+            localStorage.removeItem('admin-info');
+            localStorage.removeItem('workerlist-info');
+            localStorage.removeItem('AdminlastClickedButton');
+            localStorage.removeItem('ignoreDelAlert');
+            window.location.href = 'inAdmin.html';
+        }
+    }
+    //auto signout funtion
+    function checkAdminCredentials() {
+    // Check if 'admin-creds' is in localStorage
+        if (!localStorage.getItem('admin-creds')) {
+            // Show alert
+            alert('Please login again');
+
+            // Redirect to inAdmin.html
+            localStorage.removeItem('admin-creds');
+            localStorage.removeItem('admin-info');
+            localStorage.removeItem('workerlist-info');
+            localStorage.removeItem('AdminlastClickedButton');
+            localStorage.removeItem('ignoreDelAlert');
+            window.location.href = 'inAdmin.html';
+        }
+    }
+
+    // Call the function
+    checkAdminCredentials();
+
+    window.onload = function() {
+        checkAdminCredentials();
+    };
+</script>
+
+<!--last click funtion--------------------------------------------------------------->
+<script>
+    // Function to store a specific ID in localStorage
+    function storeButtonClick(event) {
+        const specificId = event.currentTarget.getAttribute('data-specific-id');
+        localStorage.setItem('AdminlastClickedButton', specificId);
+        console.log(`Stored ${specificId} in localStorage`);
+    }
+
+    // Function to add event listeners to buttons
+    function addClickListeners() {
+        const buttons = document.querySelectorAll('button[data-specific-id]');
+        buttons.forEach(button => {
+            button.addEventListener('click', storeButtonClick);
+        });
+    }
+
+    // Function to click the button that matches the specific ID in localStorage
+    function clickLastButton() {
+        const AdminlastClickedButtonId = localStorage.getItem('AdminlastClickedButton');
+        if (AdminlastClickedButtonId) {
+            const AdminlastClickedButton = document.querySelector(`button[data-specific-id="${AdminlastClickedButtonId}"]`);
+            if (AdminlastClickedButton) {
+                AdminlastClickedButton.click();
+                console.log(`Clicked button with data-specific-id ${AdminlastClickedButtonId} from localStorage`);
+            }
+        }
+    }
+
+    // Add event listeners when the DOM content is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        addClickListeners();
+        clickLastButton();
+    });
+
+
+</script>
+
+<!-- Generate container -------------------------------------------------------------------------------->
+<div id="generatecontainer" class="maincontainer">
+    <div id="backgroundcontainer"></div>
+    <h1 id="titlemodifpage">Custom Your Page</h1>
+    <h1 id="customText3">Your Title</h1>
+    <p>Upload your picture, 1200 x 400 is recommended.</p>
+    <input type="file" id="fileInput" style="display:none" onchange="uploadPicture(event)" />
+    <button id="uploadpicturebutton" class="upmodern-button" onclick="document.getElementById('fileInput').click()">Upload</button>
+    <div id="displayPicture">
+        <img id="uploadedImage" style="max-width: 100%; height: auto;" />
+    </div>
+    <p id="customText">Your Text</p>
+    <h1>Custom Your Form</h1>
+    <table id="editableTable">
+        <thead>
+            <tr>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            </tr>
+        </tbody>
+    </table>
+    <div class="button-container">
+        <button id="addColumnButton" class="modern-button" onclick="addColumn()">Add Column</button>
+        <button id="addDateColumnButton" class="modern-button" onclick="addDateColumn()">Add Date Column</button>
+        <button id="generateTableButton" class="modern-button" onclick="generateTable()">Create</button>
+    </div>
+    <div id="generatedtablecontainer"></div>
+    <p id="customText2">Your Text</p>
+    <button id="copyurlwithuidbutton"  class="clmodern-button" onclick="copyUrl()">Copy Page Link</button>
+</div>
+
+
+<!--customText edit funtion--------------------------------------------------------------------------------->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var customText = document.getElementById('customText');
+        var customText2 = document.getElementById('customText2');
+        var customText3 = document.getElementById('customText3');
+
+        // Make the paragraph editable
+        customText.contentEditable = true;
+        customText2.contentEditable = true;
+        customText3.contentEditable = true;
+
+        // Style the paragraph when it is being edited
+        customText.addEventListener('focus', function() {
+            customText.style.border = '1px solid blue';
+            customText.style.outline = 'none';
+        });
+
+        // Revert the style when editing is finished
+        customText.addEventListener('blur', function() {
+            customText.style.border = '0px solid #ccc';
+        });
+
+        // Style the paragraph when it is being edited
+        customText2.addEventListener('focus', function() {
+            customText2.style.border = '1px solid blue';
+            customText2.style.outline = 'none';
+        });
+
+        // Revert the style when editing is finished
+        customText2.addEventListener('blur', function() {
+            customText2.style.border = '0px solid #ccc';
+        });
+
+        // Style the paragraph when it is being edited
+        customText3.addEventListener('focus', function() {
+            customText3.style.border = '1px solid blue';
+            customText3.style.outline = 'none';
+        });
+
+        // Revert the style when editing is finished
+        customText3.addEventListener('blur', function() {
+            customText3.style.border = '0px solid #ccc';
+        });
+    });
+</script>
+
+
+<!-- Display sent table container --------------------------------------------------------------------------->
+<div id="displaysenttablelistcontainer" class="maincontainer">
+    <h1>Task List</h1>
+    <div class="checkbox-container">
+        <label for="ignoreDelAlert">Ignore Delete</label>
+        <input type="checkbox" name="Ignore Delete Alert" id="ignoreDelAlert">
+    </div>
+    <div id="displaysenttablelistcontainerhh"></div>
+</div>
+
+
+<!-- Display profile container --------------------------------------------------------------------------->
+<div id="profilecontainer" class="maincontainer">
+    <h1>Profile</h1>
+    <div id="displayprofilecontainer"></div>
+    <hr>
+    <div id="displaydatabaseprofilecontainer"></div>
+    <label id="companyNameLbl">Company Name:</label>
+    <input class="profileinput" type="text" id="companyNameInp" readonly>
+    <br id="comadmnameidbr">
+    <label id="adminNameLbl">Admin Name:</label>
+    <input class="profileinput" type="text" id="adminNameInp" readonly>
+    <br id="comadmnameidbr">
+    <button class="editbutton" onclick="editData()">Edit Data</button>
+    <button class="editbutton" onclick="disableEdit()">save Data</button>
+    <hr>
+</div>
+
+<script>
+    function editData() {
+        var companyNameInput = document.getElementById('companyNameInp');
+        var adminNameInput = document.getElementById('adminNameInp');
+
+        // Ask for confirmation before enabling edit
+        var confirmEdit = confirm("Edit data?");
+        if (confirmEdit) {
+            // Toggle the readonly attribute
+            companyNameInput.readOnly = false;
+            adminNameInput.readOnly = false;
+
+            // Focus on the first input for usability
+            companyNameInput.focus();
+        }
+    }
+
+    function disableEdit() {
+    var companyNameInput = document.getElementById('companyNameInp');
+    var adminNameInput = document.getElementById('adminNameInp');
+
+    // Set inputs to readonly
+    companyNameInput.readOnly = true;
+    adminNameInput.readOnly = true;
+
+    // Alert for save action
+    alert("Saving data.");
+
+    // Reload the page after alert
+    reloadPage();
+}
+
+function reloadPage() {
+    // Reload the current page
+    window.location.reload();
+}
+</script>
+
+
+<script>
+function displayProfileFromLocalStorage() {
+    // Retrieve the data from localStorage
+    const adminCreds = localStorage.getItem('admin-creds');
+
+    // Check if data exists in localStorage
+    if (adminCreds) {
+        // Parse the JSON data (assuming it's stored as JSON)
+        const data = JSON.parse(adminCreds);
+        
+        // Extract the email from the data
+        const { email } = data;
+
+        // Display the formatted profile information
+        const displayContainer = document.getElementById('displayprofilecontainer');
+        if (displayContainer) {
+            // Clear existing content
+            displayContainer.innerHTML = '';
+
+            // Create a div for Email section
+            const emailDiv = document.createElement('div');
+            emailDiv.style.marginTop = '10px'; // Example: Add margin for spacing
+            // Create a span element for email label
+            const emailLabel = document.createElement('span');
+            emailLabel.style.fontWeight = 'bold';
+            emailLabel.textContent = 'Email: ';
+
+            // Create a text node for email
+            const emailText = document.createTextNode(email);
+
+            // Append elements to the Email div
+            emailDiv.appendChild(emailLabel);
+            emailDiv.appendChild(emailText);
+
+            // Append Email div to the display container
+            displayContainer.appendChild(emailDiv);
+        } else {
+            console.error('Display container not found.');
+        }
+    } else {
+        console.error('No admin credentials found in localStorage.');
+    }
+}
+
+// Call the function to display profile information
+displayProfileFromLocalStorage();
+</script>
+
+
+<!--Ignore Delete alert-->
+<script>
+    // Function to load the checkbox state from localStorage
+    function loadCheckboxState() {
+        const checkboxState = localStorage.getItem('ignoreDelAlert');
+        if (checkboxState === 'true') {
+            document.getElementById('ignoreDelAlert').checked = true;
+        }
+    }
+
+    // Function to save the checkbox state in localStorage
+    function saveCheckboxState() {
+        const checkbox = document.getElementById('ignoreDelAlert');
+        localStorage.setItem('ignoreDelAlert', checkbox.checked);
+    }
+
+    // Add an event listener to the checkbox to save its state when changed
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('ignoreDelAlert').addEventListener('change', saveCheckboxState);
+        loadCheckboxState(); // Load the checkbox state when the DOM is fully loaded
+    });
+</script>
+
+
+
+<!-- Display Worker listcontainer --------------------------------------------------------------------------->
+<div id="workerlistcontainer" class="maincontainer">
+    <h1>Worker List</h1>
+    <div id="displayworkerlist"></div>
+</div>
+
+<!-- copy url funtion------------------------------------------------------------------------------------->
+<script>
+    function copyUrl() {
+        const adminInfo = JSON.parse(localStorage.getItem('admin-info'));
+        const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+        if (adminInfo && adminCreds) {
+            const uid = adminCreds.uid;
+            const newUrl = `${window.location.origin}/pageClient.html?uid=${uid}`;
+            
+            navigator.clipboard.writeText(newUrl).then(() => {
+                alert("URL copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        } else {
+            alert("Admin info or credentials not found.");
+        }
+    }
+</script>
+
+
+<!--Hidden Funtion------------------------------------------------------------------------------------------>
+<script>
+    function toggleNav() {
+        var sidenav = document.getElementById("mySidenav");
+        if (sidenav.style.width === "250px") {
+            sidenav.style.width = "0";
+        } else {
+            sidenav.style.width = "250px";
+        }
+    }
+
+    function showProfileContainer() {
+        document.getElementById("profilecontainer").style.display = "block";
+        document.getElementById("generatecontainer").style.display = "none";
+        document.getElementById("workerlistcontainer").style.display = "none";
+        document.getElementById("displaysenttablelistcontainer").style.display = "none";
+    }
+    function showGenerateContainer() {
+        document.getElementById("generatecontainer").style.display = "block";
+        document.getElementById("workerlistcontainer").style.display = "none";
+        document.getElementById("displaysenttablelistcontainer").style.display = "none";
+        document.getElementById("profilecontainer").style.display = "none";
+    }
+
+    function showDisplayTableListContainer() {
+        document.getElementById("generatecontainer").style.display = "none";
+        document.getElementById("workerlistcontainer").style.display = "none";
+        document.getElementById("displaysenttablelistcontainer").style.display = "block";
+        document.getElementById("profilecontainer").style.display = "none";
+    }
+
+    function showWorkerListContainer() {
+        document.getElementById("generatecontainer").style.display = "none";
+        document.getElementById("displaysenttablelistcontainer").style.display = "none";
+        document.getElementById("profilecontainer").style.display = "none";
+        document.getElementById("workerlistcontainer").style.display = "block";
+    }
+
+</script>
+
+
+<!--side nav funtion---------------------------------------------------------------------------------------->
+<script>
+    function toggleNav() {
+    var nav = document.getElementById("mySidenav");
+    var btn = document.getElementById("openBtn");
+    var mcon = document.getElementById("generatecontainer");
+    var dtcon = document.getElementById("displaysenttablelistcontainer");
+    var wlcon = document.getElementById("workerlistcontainer");
+    var pcon = document.getElementById("profilecontainer");
+    if (nav.style.width === "197px") {
+        nav.style.width = "0";
+        btn.style.left = "10px";
+        mcon.style.left = "1px";
+        dtcon.style.left = "1px";
+        wlcon.style.left = "1px";
+        pcon.style.left = "1px";
+    } else {
+        nav.style.width = "197px";
+        btn.style.left = "207px";
+        mcon.style.left = "220px";
+        dtcon.style.left = "220px";
+        wlcon.style.left = "220px";
+        pcon.style.left = "220px";
+    }
+    }
+</script>
+
+
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+    import { getDatabase, set, onValue, get, ref, update, child, remove, push } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+    import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
+
+
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyBSWNkZIaxudvQFQKiWQl0WcZBh--1UliU",
+        authDomain: "izify-f0dec.firebaseapp.com",
+        databaseURL: "https://izify-f0dec-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "izify-f0dec",
+        storageBucket: "izify-f0dec.appspot.com",
+        messagingSenderId: "327248340505",
+        appId: "1:327248340505:web:bc9a33d4b7505d97cb6c88",
+        measurementId: "G-RTB0Q895P0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const dbref = ref(db);
+    const storage = getStorage(app);
+
+//generate table funtion ------------------------------------------------------------------------------
+let columnCounter = 3; // Initialize with existing column count
+
+window.addColumn = function() {
+    columnCounter++;
+    // Get the table
+    var table = document.getElementById('editableTable');
+    // Add a new header cell (th)
+    var headerRow = table.getElementsByTagName('thead')[0].rows[0];
+    var newHeaderCell = document.createElement('th');
+    newHeaderCell.id = 'th' + columnCounter; // Assign unique ID
+    newHeaderCell.contentEditable = "true";
+    newHeaderCell.innerHTML = "Title";
+    headerRow.appendChild(newHeaderCell);
+    // Add a new cell (td) to each row in the tbody
+    var rows = table.getElementsByTagName('tbody')[0].rows;
+    for (var i = 0; i < rows.length; i++) {
+        var newCell = document.createElement('td');
+        newCell.id = 'td' + columnCounter + '_' + (i + 1); // Assign unique ID
+        newCell.contentEditable = "true";
+        newCell.innerHTML = "";
+        rows[i].appendChild(newCell);
+    }
+};
+
+window.addDateColumn = function() {
+    columnCounter++;
+    // Get the table
+    var table = document.getElementById('editableTable');
+    // Add a new header cell (th)
+    var headerRow = table.getElementsByTagName('thead')[0].rows[0];
+    var newHeaderCell = document.createElement('th');
+    newHeaderCell.id = 'th' + columnCounter; // Assign unique ID
+    newHeaderCell.contentEditable = "true";
+    newHeaderCell.innerHTML = "Date & Time";
+    headerRow.appendChild(newHeaderCell);
+    // Add a new cell (td) to each row in the tbody
+    var rows = table.getElementsByTagName('tbody')[0].rows;
+    for (var i = 0; i < rows.length; i++) {
+        var newCell = document.createElement('td');
+        newCell.id = 'td' + columnCounter + '_' + (i + 1); // Assign unique ID
+        newCell.innerHTML = '<input type="datetime-local">';
+        rows[i].appendChild(newCell);
+    }
+};
+
+window.generateTable = function() {
+    const table = document.getElementById('editableTable');
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    const tableData = {
+        headers: [],
+        rows: []
+    };
+
+    headers.forEach(header => {
+        tableData.headers.push({
+            id: header.id,
+            content: header.innerText
+        });
+    });
+
+    rows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            let content = cell.innerText;
+            if (cell.querySelector('input[type="datetime-local"]')) {
+                content = cell.querySelector('input[type="datetime-local"]').value;
+            }
+            rowData.push({
+                id: cell.id,
+                content: content,
+                type: cell.querySelector('input[type="datetime-local"]') ? 'datetime' : 'text'
+            });
+        });
+        tableData.rows.push(rowData);
+    });
+
+    // Save to Firebase
+    const adminInfo = JSON.parse(localStorage.getItem('admin-info'));
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+    if (adminInfo && adminCreds) {
+        const uid = adminCreds.uid;
+        set(ref(db, `AdminsAuthList/${uid}/GeneratedTable`), tableData)
+            .then(() => {
+                console.log('Table data saved successfully.');
+            })
+            .catch((error) => {
+                console.error('Error saving table data:', error);
+            });
+    } else {
+        console.error('Admin info or credentials not found in local storage.');
+    }
+};
+
+
+// generated table--------------------------------------------------------------------------------------
+function displayGeneratedTable() {
+    const adminInfo = JSON.parse(localStorage.getItem('admin-info'));
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+    if (adminInfo && adminCreds) {
+        const uid = adminCreds.uid;
+        const tableRef = ref(db, `AdminsAuthList/${uid}/GeneratedTable`);
+
+        //custom text 1------------------ 
+        const customTextRef = ref(db, `AdminsAuthList/${uid}/customText1/CustomText`);
+        const customTextRef2 = ref(db, `AdminsAuthList/${uid}/customText2/CustomText`);
+        const customTextRef3 = ref(db, `AdminsAuthList/${uid}/customText3/CustomText`);
+
+        // Fetch and display custom text
+        onValue(customTextRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const customTextData = snapshot.val();
+                const customTextElement = document.getElementById('customText');
+                customTextElement.innerText = customTextData;
+            } else {
+                console.log('No custom text found.');
+            }
+        }, (error) => {
+            console.error('Error fetching custom text:', error);
+        });
+        // custom text 2 -------------------
+        // Fetch and display custom text
+        onValue(customTextRef2, (snapshot) => {
+            if (snapshot.exists()) {
+                const customTextData2 = snapshot.val();
+                const customTextElement = document.getElementById('customText2');
+                customTextElement.innerText = customTextData2;
+            } else {
+                console.log('No custom text found.');
+            }
+        }, (error) => {
+            console.error('Error fetching custom text:', error);
+        });
+        // custom text 2------------------------
+        // custom text 3 -------------------
+        // Fetch and display custom text
+        onValue(customTextRef3, (snapshot) => {
+            if (snapshot.exists()) {
+                const customTextData3 = snapshot.val();
+                const customTextElement = document.getElementById('customText3');
+                customTextElement.innerText = customTextData3;
+            } else {
+                console.log('No custom text found.');
+            }
+        }, (error) => {
+            console.error('Error fetching custom text:', error);
+        });
+        // custom text 2------------------------
+
+
+
+        onValue(tableRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const tableData = snapshot.val();
+                const generatedTableContainer = document.getElementById('generatedtablecontainer');
+                generatedTableContainer.innerHTML = ''; // Clear any existing content
+
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+
+                // Create header row
+                const headerRow = document.createElement('tr');
+                if (Array.isArray(tableData.headers)) {
+                    tableData.headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.id = header.id;
+                        th.contentEditable = "true";
+                        th.innerText = header.content;
+
+                        // Add debounced input event listener
+                        th.addEventListener('blur', (e) => {
+                            updateHeaderContent(uid, th.id, e.target.innerText);
+                        });
+
+                        headerRow.appendChild(th);
+                    });
+                }
+                thead.appendChild(headerRow);
+
+                // Create body rows
+                if (Array.isArray(tableData.rows)) {
+                    tableData.rows.forEach((rowData, rowIndex) => {
+                        const row = document.createElement('tr');
+                        if (Array.isArray(rowData)) {
+                            rowData.forEach(cellData => {
+                                const td = document.createElement('td');
+                                td.id = cellData.id;
+                                td.contentEditable = "true";
+                                if (cellData.type === 'datetime') {
+                                    const input = document.createElement('input');
+                                    input.type = 'datetime-local';
+                                    input.value = cellData.content;
+                                    input.addEventListener('blur', (e) => {
+                                        updateCellContent(uid, rowIndex, td.id, e.target.value);
+                                    });
+                                    td.innerHTML = '';
+                                    td.appendChild(input);
+                                } else {
+                                    td.innerText = cellData.content;
+                                    // Add debounced input event listener for other cells
+                                    td.addEventListener('blur', (e) => {
+                                        updateCellContent(uid, rowIndex, td.id, e.target.innerText);
+                                    });
+                                }
+
+                                row.appendChild(td);
+                            });
+                        }
+                        tbody.appendChild(row);
+                    });
+                }
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                generatedTableContainer.appendChild(table);
+            } else {
+                console.log('No table data found.');
+                document.getElementById('generatedtablecontainer').innerHTML = '<p>Create your table form first.</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching table data:', error);
+        });
+    } else {
+        console.error('Admin info or credentials not found in local storage.');
+    }
+}
+
+// Update header content in Firebase
+function updateHeaderContent(uid, headerId, newContent) {
+    const headerRef = ref(db, `AdminsAuthList/${uid}/GeneratedTable/headers`);
+    get(headerRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const headers = snapshot.val();
+            const headerIndex = headers.findIndex(header => header.id === headerId);
+            if (headerIndex !== -1) {
+                headers[headerIndex].content = newContent;
+                set(headerRef, headers)
+                    .then(() => console.log(`Header ${headerId} updated successfully.`))
+                    .catch(error => console.error('Error updating header:', error));
+            }
+        }
+    });
+}
+
+// Update cell content in Firebase
+function updateCellContent(uid, rowIndex, cellId, newContent) {
+    const rowsRef = ref(db, `AdminsAuthList/${uid}/GeneratedTable/rows`);
+    get(rowsRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const rows = snapshot.val();
+            const cellIndex = rows[rowIndex].findIndex(cell => cell.id === cellId);
+            if (cellIndex !== -1) {
+                rows[rowIndex][cellIndex].content = newContent;
+                set(rowsRef, rows)
+                    .then(() => console.log(`Cell ${cellId} in row ${rowIndex} updated successfully.`))
+                    .catch(error => console.error('Error updating cell:', error));
+            }
+        }
+    });
+}
+
+// Save custom text 1 in Firebase-----------------------------------------------------------
+function saveCustomText(uid, text) {
+    const customTextRef = ref(db, `AdminsAuthList/${uid}/customText1/CustomText`);
+    set(customTextRef, text)
+        .then(() => console.log('Custom text saved successfully.'))
+        .catch(error => console.error('Error saving custom text:', error));
+}
+
+// Add event listener to save custom text on blur
+document.getElementById('customText').addEventListener('blur', (e) => {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds) {
+        saveCustomText(adminCreds.uid, e.target.innerText);
+    } else {
+        console.error('Admin credentials not found in local storage.');
+    }
+});
+// Save custom text 1 in Firebase-----------------------------------------------------------
+
+
+
+// Save custom text 2 in Firebase ---------------------------------------------------------
+function saveCustomText2(uid, text) {
+    const customTextRef = ref(db, `AdminsAuthList/${uid}/customText2/CustomText`);
+    set(customTextRef, text)
+        .then(() => console.log('Custom text saved successfully.'))
+        .catch(error => console.error('Error saving custom text:', error));
+}
+
+// Add event listener to save custom text on blur
+document.getElementById('customText2').addEventListener('blur', (e) => {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds) {
+        saveCustomText2(adminCreds.uid, e.target.innerText);
+    } else {
+        console.error('Admin credentials not found in local storage.');
+    }
+});
+// Save custom text 2 in Firebase ---------------------------------------------------------
+
+
+// Save custom text 3 in Firebase ---------------------------------------------------------
+function saveCustomText3(uid, text) {
+    const customTextRef = ref(db, `AdminsAuthList/${uid}/customText3/CustomText`);
+    set(customTextRef, text)
+        .then(() => console.log('Custom text saved successfully.'))
+        .catch(error => console.error('Error saving custom text:', error));
+}
+
+// Add event listener to save custom text on blur
+document.getElementById('customText3').addEventListener('blur', (e) => {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds) {
+        saveCustomText3(adminCreds.uid, e.target.innerText);
+    } else {
+        console.error('Admin credentials not found in local storage.');
+    }
+});
+// Save custom text 3 in Firebase ---------------------------------------------------------
+
+
+
+// Call the function to display the generated table
+displayGeneratedTable();
+
+//Display sent table function------------------------------------------------------------------------
+function displaySentTable() {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+    if (adminCreds) {
+        const uid = adminCreds.uid;
+        const sentTableRef = ref(db, `AdminsAuthList/${uid}/SentTable`);
+
+        onValue(sentTableRef, (snapshot) => {
+            const sentTableContainer = document.getElementById('displaysenttablelistcontainerhh');
+            sentTableContainer.innerHTML = ''; // Clear any existing content
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const tableData = childSnapshot.val();
+                    
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    if (Array.isArray(tableData.headers)) {
+                        tableData.headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.id = header.id;
+                            th.innerText = header.content;
+                            headerRow.appendChild(th);
+                        });
+                    }
+                    // Create delete button header
+                    const deleteButtonTh = document.createElement('th');
+                    deleteButtonTh.innerText = '';
+                    headerRow.appendChild(deleteButtonTh);
+                    thead.appendChild(headerRow);
+
+                    // Create body rows
+                    if (Array.isArray(tableData.rows)) {
+                        tableData.rows.forEach((rowData, rowIndex) => {
+                            const row = document.createElement('tr');
+                            if (Array.isArray(rowData)) {
+                                rowData.forEach(cellData => {
+                                    const td = document.createElement('td');
+                                    td.id = cellData.id;
+                                    if (cellData.type === 'datetime') {
+                                        const input = document.createElement('input');
+                                        input.type = 'datetime-local';
+                                        input.value = cellData.content;
+                                        td.appendChild(input);
+                                    } else {
+                                        td.innerText = cellData.content;
+                                    }
+                                    row.appendChild(td);
+                                });
+                            }
+                            // Create delete button cell
+                            const deleteButtonTd = document.createElement('td');
+                            const deleteButton = document.createElement('button');
+                            deleteButton.id = 'deleteButton'; // Set the ID for the delete button
+                            deleteButton.innerText = 'Delete';
+
+                            deleteButton.addEventListener('click', () => {
+                                const ignoreDeleteAlert = localStorage.getItem('ignoreDelAlert') === 'true';
+                                if (ignoreDeleteAlert || confirm('Delete Task?')) {
+                                    deleteTable(childSnapshot.key);
+                                }
+                            });
+
+                            deleteButtonTd.appendChild(deleteButton);
+                            row.appendChild(deleteButtonTd);
+
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    sentTableContainer.appendChild(table);
+                });
+            } else {
+                console.log('No sent table data found.');
+                sentTableContainer.innerHTML = '<p>No task.</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching sent table data:', error);
+        });
+    } else {
+        console.error('Admin credentials not found in local storage.');
+    }
+}
+
+// Call the function to display the sent table
+displaySentTable();
+
+function deleteTable(tableId) {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds) {
+        const uid = adminCreds.uid;
+        const tableRef = ref(db, `AdminsAuthList/${uid}/SentTable/${tableId}`);
+        
+        remove(tableRef)
+            .then(() => {
+                const tableToRemove = document.getElementById(tableId);
+                tableToRemove.remove();
+                console.log('Table deleted successfully.');
+            })
+            .catch((error) => {
+                console.error('Error deleting table:', error);
+            });
+    } else {
+        console.error('Admin credentials not found in local storage.');
+    }
+}
+
+
+
+// funtion display worker list
+function displayWorkerList() {
+        const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+
+        if (adminCreds) {
+            const uid = adminCreds.uid;
+            const workerListRef = ref(db, `AdminsAuthList/${uid}/workersAuthList`);
+
+            onValue(workerListRef, (snapshot) => {
+                const workerListContainer = document.getElementById('displayworkerlist');
+                workerListContainer.innerHTML = ''; // Clear any existing content
+
+                const workers = snapshot.val();
+
+                for (const workerUid in workers) {
+                    if (workers.hasOwnProperty(workerUid)) {
+                        const workerData = workers[workerUid];
+
+                        // Create a div for each worker
+                        const workerDiv = document.createElement('div');
+                        workerDiv.id = 'workerlistdiv';
+
+                        workerDiv.classList.add('worker');
+                        workerDiv.setAttribute('data-worker-uid', workerUid);
+                        workerDiv.setAttribute('data-worker-id', workerData.workerid);
+                        workerDiv.setAttribute('data-worker-name', workerData.workername);
+
+                        // Create and append the worker ID element
+                        const workerIdElem = document.createElement('p');
+                        workerIdElem.textContent = `ID: ${workerData.workerid}`;
+                        workerDiv.appendChild(workerIdElem);
+
+                        // Create and append the worker name element
+                        const workerNameElem = document.createElement('p');
+                        workerNameElem.textContent = `Name: ${workerData.workername}`;
+                        workerDiv.appendChild(workerNameElem);
+
+                        // Add click event listener to the worker div
+                        workerDiv.addEventListener('click', () => {
+                            const workerInfo = {
+                                workerUid: workerUid,
+                                workerId: workerData.workerid,
+                                workerName: workerData.workername
+                            };
+                            localStorage.setItem('workerlist-info', JSON.stringify(workerInfo));
+                            window.location.href = 'listWorker.html';
+                        });
+
+                        // Append the worker div to the container
+                        workerListContainer.appendChild(workerDiv);
+                    }
+                }
+            });
+        }
+    }
+
+    // Call the function to display the worker list
+    displayWorkerList();
+
+    
+// Function to upload and display picture-----------------------------------------------------------------------------
+
+const displayedPictures = new Set();
+
+window.uploadPicture = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const storageRefPath = `images/${file.name}`;
+    const fileRef = storageRef(storage, storageRefPath);
+
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    uploadTask.on('state_changed',
+        (snapshot) => {
+            // Optional: track progress
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+        },
+        (error) => {
+            console.error('Upload failed:', error);
+        },
+        () => {
+            // Handle successful uploads on complete
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                console.log('File available at', downloadURL);
+                savePictureURL(downloadURL, '100%', 'auto');
+                // Display the newly uploaded picture and add it to the set
+                if (!displayedPictures.has(downloadURL)) {
+                    displayedPictures.add(downloadURL);
+                    displayPicture(downloadURL, '100%', 'auto');
+                }
+            });
+        }
+    );
+}
+
+// Function to save picture URL and size in Firebase Database
+function savePictureURL(url, width, height) {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds && adminCreds.uid) {
+        const uid = adminCreds.uid;
+        const picturesRef = ref(db, `AdminsAuthList/${uid}/pictures`);
+        const newPictureRef = push(picturesRef); // Generate a new unique key
+        set(newPictureRef, { url: url, width: width, height: height });
+    } else {
+        console.error('Admin credentials not found in localStorage');
+    }
+}
+
+// Function to load all picture URLs and sizes from Firebase Database on page load
+window.onload = function() {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds && adminCreds.uid) {
+        const uid = adminCreds.uid;
+        const picturesRef = ref(db, `AdminsAuthList/${uid}/pictures`);
+        onValue(picturesRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                for (const key in data) {
+                    if (data[key] && data[key].url) {
+                        const url = data[key].url;
+                        const width = data[key].width || '100%'; // Default width if not available
+                        const height = data[key].height || 'auto'; // Default height if not available
+                        // Display picture if not already displayed
+                        if (!displayedPictures.has(url)) {
+                            displayedPictures.add(url);
+                            displayPicture(url, width, height, key);
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        console.error('Admin credentials not found in localStorage');
+    }
+}
+
+// Function to display picture with margin
+window.displayPicture = function(url, width, height, key) {
+    const displayDiv = document.getElementById('displayPicture');
+    const pictureContainer = document.createElement('div');
+    pictureContainer.style.marginBottom = '20px'; // Add a 20px margin
+    pictureContainer.setAttribute('data-key', key); // Set data-key attribute to hold the Firebase key
+
+    const imgElement = document.createElement('img');
+    imgElement.src = url;
+    imgElement.style.width = width;
+    imgElement.style.height = height;
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.classList.add('delete-button');
+    deleteButton.addEventListener('click', () => deletePicture(url, key));
+
+    pictureContainer.appendChild(imgElement);
+    pictureContainer.appendChild(deleteButton);
+    displayDiv.appendChild(pictureContainer);
+}
+
+// Function to delete picture
+function deletePicture(url, key) {
+    const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+    if (adminCreds && adminCreds.uid) {
+        const uid = adminCreds.uid;
+        const pictureRef = ref(db, `AdminsAuthList/${uid}/pictures/${key}`);
+        remove(pictureRef).then(() => {
+            console.log('Picture deleted successfully');
+            displayedPictures.delete(url);
+            const pictureContainer = document.querySelector(`[data-key="${key}"]`);
+            if (pictureContainer) {
+                pictureContainer.remove();
+            }
+        }).catch((error) => {
+            console.error('Error deleting picture:', error);
+        });
+    } else {
+        console.error('Admin credentials not found in localStorage');
+    }
+}
+
+        // Funtion Edit profile
+        function setupListeners() {
+            // Get admin UID from localStorage
+            const adminCreds = localStorage.getItem('admin-creds');
+            const { uid } = JSON.parse(adminCreds);
+
+            // Reference to the admin's data in the database
+            const adminsRef = ref(db, `AdminsAuthList/${uid}`);
+
+            // Set up listener for changes to admin data
+            onValue(adminsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Populate input fields with fetched data
+                    document.getElementById('companyNameInp').value = data.companyname || '';
+                    document.getElementById('adminNameInp').value = data.adminname || '';
+                } else {
+                    alert('Admin data not found.');
+                }
+            }, {
+                onlyOnce: true // Fetch data only once initially
+            }, (error) => {
+                console.error('Error fetching data:', error);
+                alert('Failed to fetch admin data. Please try again.');
+            });
+
+            // Attach input event listeners to update Firebase on change
+            document.getElementById('companyNameInp').addEventListener('input', updateCompanyName);
+            document.getElementById('adminNameInp').addEventListener('input', updateAdminName);
+        }
+
+        // Function to update companyName in Firebase
+        function updateCompanyName(event) {
+            const newValue = event.target.value;
+            updateFirebase({ companyname: newValue });
+        }
+
+        // Function to update adminName in Firebase
+        function updateAdminName(event) {
+            const newValue = event.target.value;
+            updateFirebase({ adminname: newValue });
+        }
+
+        // Function to update values in Firebase
+        function updateFirebase(updates) {
+            // Get admin UID from localStorage
+            const adminCreds = localStorage.getItem('admin-creds');
+            const { uid } = JSON.parse(adminCreds);
+
+            // Reference to the admin's data in the database
+            const adminsRef = ref(db, `AdminsAuthList/${uid}`);
+
+            // Update the values in Firebase
+            update(adminsRef, updates)
+                .then(() => {
+                    console.log('Data updated successfully.');
+                })
+                .catch((error) => {
+                    console.error('Error updating data:', error);
+                    alert('Failed to update data. Please try again.');
+                });
+        }
+
+        // Call setupListeners() when the page loads
+        setupListeners();
+
+
+        
+        //funtion header title company name
+        function updateHeaderTitle(companyName) {
+            const headerTitle = document.getElementById('header-title');
+            if (companyName) {
+                headerTitle.textContent = `Izify - ${companyName}`;
+            } else {
+                headerTitle.textContent = `Izify`;
+            }
+        }
+
+        // Check if admin UID is stored in local storage
+        const adminCreds = JSON.parse(localStorage.getItem('admin-creds'));
+        if (adminCreds && adminCreds.uid) {
+            const adminUid = adminCreds.uid;
+
+            // Reference to companyname in AdminsAuthList
+            const companyRef = ref(db, `AdminsAuthList/${adminUid}/companyname`);
+
+            // Fetch company name from Firebase Database using get
+            get(companyRef)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const companyName = snapshot.val();
+                        updateHeaderTitle(companyName);
+                    } else {
+                        // No companyname found
+                        updateHeaderTitle(null);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching company name:', error);
+                    // Default to "Izify" if there's an error
+                    updateHeaderTitle(null);
+                });
+        } else {
+            // No admin UID found in local storage, default to "Izify"
+            updateHeaderTitle(null);
+        }
+</script>
+
+
+  
+</html>

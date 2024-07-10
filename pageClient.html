@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Table</title>
+    <link rel="stylesheet" href="clientstyles.css">
+</head>
+<body>
+
+    <!--Header------------------------------------------------------------------------------->
+    <header id="main-header">
+        <h1 id="header-title">Izify</h1>
+    </header>
+
+
+    <div id="clientdisplaycontainer">
+        <h1 id="customText3">-Type title-</h1>
+        <div id="displayPicture">
+            <img id="uploadedImage" style="max-width: 100%; height: auto;" />
+        </div>
+        <p id="customText">Type here</p>
+        <div id="tableContainer"></div>
+        <button id="sendTableButton" onclick="sendTable()">Send</button>
+        <p id="customText2">Type here</p>
+    </div>
+
+ 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+        import { getDatabase, set, get, onValue, ref, child, push } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSWNkZIaxudvQFQKiWQl0WcZBh--1UliU",
+            authDomain: "izify-f0dec.firebaseapp.com",
+            databaseURL: "https://izify-f0dec-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "izify-f0dec",
+            storageBucket: "izify-f0dec.appspot.com",
+            messagingSenderId: "327248340505",
+            appId: "1:327248340505:web:bc9a33d4b7505d97cb6c88",
+            measurementId: "G-RTB0Q895P0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        const tableContainer = document.getElementById('tableContainer');
+
+// Function to fetch and display table from the database
+function displayTable(uid) {
+    const tableRef = ref(db, `AdminsAuthList/${uid}/GeneratedTable`);
+    get(child(tableRef, '/')).then((snapshot) => {
+        if (snapshot.exists()) {
+            const tableData = snapshot.val();
+
+
+            //custom text 1------------------ 
+            const customTextRef = ref(db, `AdminsAuthList/${uid}/customText1/CustomText`);
+            const customTextRef2 = ref(db, `AdminsAuthList/${uid}/customText2/CustomText`);
+            const customTextRef3 = ref(db, `AdminsAuthList/${uid}/customText3/CustomText`);
+
+            // Fetch and display custom text
+            onValue(customTextRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const customTextData = snapshot.val();
+                    const customTextElement = document.getElementById('customText');
+                    customTextElement.innerText = customTextData;
+                } else {
+                    console.log('No custom text found.');
+                }
+            }, (error) => {
+                console.error('Error fetching custom text:', error);
+            });
+            // custom text 2 -------------------
+            // Fetch and display custom text
+            onValue(customTextRef2, (snapshot) => {
+                if (snapshot.exists()) {
+                    const customTextData2 = snapshot.val();
+                    const customTextElement = document.getElementById('customText2');
+                    customTextElement.innerText = customTextData2;
+                } else {
+                    console.log('No custom text found.');
+                }
+            }, (error) => {
+                console.error('Error fetching custom text:', error);
+            });
+            // custom text 2------------------------
+            // custom text 3 -------------------
+            // Fetch and display custom text
+            onValue(customTextRef3, (snapshot) => {
+                if (snapshot.exists()) {
+                    const customTextData3 = snapshot.val();
+                    const customTextElement = document.getElementById('customText3');
+                    customTextElement.innerText = customTextData3;
+                } else {
+                    console.log('No custom text found.');
+                }
+            }, (error) => {
+                console.error('Error fetching custom text:', error);
+            });
+            // custom text 2------------------------
+
+
+            // Generate HTML for the table
+            const tableHTML = `
+                <table border="1">
+                    <thead>
+                        <tr>
+                            ${tableData.headers.map(header => `<th>${header.content}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tbody>
+                            ${tableData.rows.map((row, rowIndex) => `
+                                <tr>
+                                    ${row.map((cell, cellIndex) => `
+                                        <td id="td_${rowIndex}_${cellIndex}" contenteditable="true" style="max-width: 20px;">
+                                            ${cell.type === 'datetime' 
+                                                ? `<input type="datetime-local" value="${cell.content}">`
+                                                : cell.content
+                                            }
+                                        </td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                </table>
+            `;
+
+            // Display the table
+            tableContainer.innerHTML = tableHTML;
+        } else {
+            console.error('Table data not found in the database.');
+        }
+    }).catch((error) => {
+        console.error('Error fetching table data:', error);
+    });
+}
+
+window.sendTable = function() {
+    const uid = getUrlParameter('uid');
+
+    if (uid) {
+        const tableHeaders = Array.from(document.querySelectorAll('#tableContainer thead th')).map(th => th.textContent);
+        const tableRows = Array.from(document.querySelectorAll('#tableContainer tbody tr')).map(tr => {
+            return Array.from(tr.querySelectorAll('td')).map(td => {
+                const input = td.querySelector('input[type="datetime-local"]');
+                return {
+                    content: input ? input.value : td.textContent,
+                    type: input ? 'datetime' : 'text'
+                };
+            });
+        });
+
+        const tableData = {
+            headers: tableHeaders.map(header => ({ content: header })),
+            rows: tableRows
+        };
+
+        const sentTableRef = push(ref(db, `AdminsAuthList/${uid}/SentTable`));
+
+        set(sentTableRef, tableData)
+            .then(() => {
+                alert('Successfully sent.');
+                console.log('Table data sent successfully.');
+            })
+            .catch((error) => {
+                console.error('Error sending table data:', error);
+            });
+    } else {
+        alert('Failed to send.');
+        console.error('UID not found in URL parameters.');
+    }
+}
+
+onAuthStateChanged(auth, user => {
+    if (user) {
+        const uid = getUrlParameter('uid');
+        if (uid) {
+            displayTable(uid);
+        } else {
+            console.error('UID not found in URL parameters.');
+        }
+    } else {
+        signInAnonymously(auth)
+            .then(() => {
+                const uid = getUrlParameter('uid');
+                if (uid) {
+                    displayTable(uid);
+                } else {
+                    console.error('UID not found in URL parameters.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error during anonymous sign-in:', error);
+            });
+    }
+});
+
+
+
+
+
+
+// Initialize a Set to keep track of displayed pictures------------------------------------------------
+const displayedPictures = new Set();
+
+// Function to upload picture
+window.uploadPicture = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const storageRefPath = `images/${file.name}`;
+    const fileRef = storageRef(storage, storageRefPath);
+
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    uploadTask.on('state_changed',
+        (snapshot) => {
+            // Optional: track progress
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+        },
+        (error) => {
+            console.error('Upload failed:', error);
+        },
+        () => {
+            // Handle successful uploads on complete
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                console.log('File available at', downloadURL);
+                savePictureURL(downloadURL, '100%', 'auto');
+                // Display the newly uploaded picture and add it to the set
+                if (!displayedPictures.has(downloadURL)) {
+                    displayedPictures.add(downloadURL);
+                    displayPicture(downloadURL, '100%', 'auto');
+                }
+            });
+        }
+    );
+}
+
+// Function to load all picture URLs and sizes from Firebase Database on page load
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const uid = urlParams.get('uid');
+
+    if (uid) {
+        const picturesRef = ref(db, `AdminsAuthList/${uid}/pictures`);
+        onValue(picturesRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                for (const key in data) {
+                    if (data[key] && data[key].url) {
+                        const url = data[key].url;
+                        const width = data[key].width || '100%'; // Default width if not available
+                        const height = data[key].height || 'auto'; // Default height if not available
+                        // Display picture if not already displayed
+                        if (!displayedPictures.has(url)) {
+                            displayedPictures.add(url);
+                            displayPicture(url, width, height);
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        console.error('Admin UID not found in URL parameters');
+    }
+}
+
+// Function to display picture with margin
+window.displayPicture = function(url, width, height) {
+    const displayDiv = document.getElementById('displayPicture');
+    const imgElement = document.createElement('img');
+    imgElement.src = url;
+    imgElement.style.width = width;
+    imgElement.style.height = height;
+    imgElement.style.marginBottom = '20px'; // Add a 20px margin
+    displayDiv.appendChild(imgElement);
+}
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</body>
+</html>

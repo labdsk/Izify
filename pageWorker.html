@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Page</title>
+    <link rel="stylesheet" href="pagestyles.css">
+</head>
+<body>
+<!--Header------------------------------------------------------------------------------->
+    <header id="main-header">
+        <h1 id="header-title">Izify</h1>
+    </header>
+</body>
+<script>
+    // Retrieve the workername from localStorage
+    const workerInfo = localStorage.getItem('worker-info');
+    if (workerInfo) {
+        const workerData = JSON.parse(workerInfo);
+        const workerName = workerData.workername;
+
+        // Replace the workername in the header title
+        if (workerName) {
+            const headerTitle = document.getElementById('header-title');
+            headerTitle.textContent = `Izify - ${workerName}`;
+        }
+    }
+</script>
+
+
+<!-- Inside sidenav ------------------------------------------------------------------->
+<div id="mySidenav" class="sidenav">
+    <button class="button-class" onclick="loadHomePage()">Home</button>
+    <hr>
+    <button class="button-class" data-specific-id="profileButton" onclick="showProfileContainer()">Profile</button>
+    <button class="button-class" data-specific-id="displayTableListButton" onclick="showDisplayTableListContainer()">Task</button>
+    <hr>
+    <button class="button-class" onclick="signOut()">Sign&nbsp;Out</button>
+</div>
+<button class="openbtn" id="openBtn" onclick="toggleNav()"></button>
+
+<script>
+    function loadHomePage() {
+        window.location.href = 'index.html';
+    }
+</script>
+
+<!-- sign out------------------------------------------------------------->
+<script>
+    function signOut() {
+        if (confirm('Sign Out?')) {
+            localStorage.removeItem('worker-creds');
+            localStorage.removeItem('worker-info');
+            localStorage.removeItem('worker-admin-uid');
+            localStorage.removeItem('workerlastClickedButton');
+            window.location.href = 'inWorker.html';
+        }
+    }
+    //auto signout funtion
+    function checkWorkerCredentials() {
+        if (!localStorage.getItem('worker-creds')) {
+            alert('Please login again');
+            localStorage.removeItem('worker-creds');
+            localStorage.removeItem('worker-info');
+            localStorage.removeItem('worker-admin-uid');
+            localStorage.removeItem('workerlastClickedButton');
+            window.location.href = 'inWorker.html';
+        }
+    }
+
+    // Call the function
+    checkWorkerCredentials();
+
+    window.onload = function() {
+        checkWorkerCredentials();
+    };
+</script>
+<!--last click funtion--------------------------------------------------------------->
+<script>
+    // Function to store a specific ID in localStorage
+    function storeButtonClick(event) {
+        const workerspecificId = event.currentTarget.getAttribute('data-specific-id');
+        localStorage.setItem('workerlastClickedButton', workerspecificId);
+        console.log(`Stored ${workerspecificId} in localStorage`);
+    }
+
+    // Function to add event listeners to buttons
+    function addClickListeners() {
+        const buttons = document.querySelectorAll('button[data-specific-id]');
+        buttons.forEach(button => {
+            button.addEventListener('click', storeButtonClick);
+        });
+    }
+
+    // Function to click the button that matches the specific ID in localStorage
+    function clickLastButton() {
+        const WorkerlastClickedButtonId = localStorage.getItem('workerlastClickedButton');
+        if (WorkerlastClickedButtonId) {
+            const WorkerlastClickedButton = document.querySelector(`button[data-specific-id="${WorkerlastClickedButtonId}"]`);
+            if (WorkerlastClickedButton) {
+                WorkerlastClickedButton.click();
+                console.log(`Clicked button with data-specific-id ${WorkerlastClickedButtonId} from localStorage`);
+            }
+        }
+    }
+
+    // Add event listeners when the DOM content is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        addClickListeners();
+        clickLastButton();
+    });
+
+    // Functions to show/hide containers
+    function showProfileContainer() {
+        document.getElementById('profileContainer').style.display = 'block';
+        document.getElementById('displaysenttablelistcontainer').style.display = 'none';
+    }
+
+    function showDisplayTableListContainer() {
+        document.getElementById('profileContainer').style.display = 'none';
+        document.getElementById('displaysenttablelistcontainer').style.display = 'block';
+    }
+</script>
+
+
+
+
+
+<!-- Display profile container --------------------------------------------------------------------------->
+<div id="profilecontainer" class="maincontainer">
+    <h1>Worker Profile</h1>
+    <div id="displayprofilecontainer"></div>
+    <label class="profileLabel" id="companyNameLbl">Company:</label>
+    <input class="profileinput" type="text" id="companyNameInp" readonly>
+    <br id="comadmnameidbr">
+    <br id="comadmnameidbr">
+    <label class="profileLabel" id="workerNameLbl">Name:</label>
+    <input class="profileinput" type="text" id="workerNameInp" readonly>
+    <br id="comadmnameidbr">
+    <label class="profileLabel" id="workerIdLbl">Id:</label>
+    <input class="profileinput" type="text" id="workerIdInp" readonly>
+    <br id="comadmnameidbr">
+    <label class="profileLabel" id="workerEmailLbl">Email:</label>
+    <input class="profileinput" type="text" id="workerEmailInp" readonly>
+    <hr>
+</div>
+
+
+<!-- Display sent table container --------------------------------------------------------------------------->
+<div id="displaysenttablelistcontainer" class="maincontainer">
+    <h1>Task</h1>
+    <div id="taskListContainer"></div>
+    <hr class="space">
+    <h1 id="acceptedh1">Accepted</h1>
+    <div id="acceptedListContainer"></div>
+    <hr class="space">
+    <h1 id="acceptedh1">Rejected</h1>
+    <div id="rejectedListContainer"></div>
+    <hr class="space">
+</div>
+
+
+
+
+
+
+
+
+<!--Hidden Funtion------------------------------------------------------------------------------------------>
+<script>
+    function toggleNav() {
+        var sidenav = document.getElementById("mySidenav");
+        if (sidenav.style.width === "250px") {
+            sidenav.style.width = "0";
+        } else {
+            sidenav.style.width = "250px";
+        }
+    }
+
+    function showProfileContainer() {
+        document.getElementById("profilecontainer").style.display = "block";
+        document.getElementById("displaysenttablelistcontainer").style.display = "none";
+    }
+
+    function showDisplayTableListContainer() {
+        document.getElementById("profilecontainer").style.display = "none";
+        document.getElementById("displaysenttablelistcontainer").style.display = "block";
+    }
+
+    function addColumn() {
+        // Your addColumn logic here
+    }
+
+    function profileTable() {
+        // Your profileTable logic here
+    }
+</script>
+
+
+<!--side nav funtion---------------------------------------------------------------------------------------->
+<script>
+    function toggleNav() {
+    var nav = document.getElementById("mySidenav");
+    var btn = document.getElementById("openBtn");
+    var mcon = document.getElementById("profilecontainer");
+    var dtcon = document.getElementById("displaysenttablelistcontainer");
+    if (nav.style.width === "197px") {
+        nav.style.width = "0";
+        btn.style.left = "10px";
+        mcon.style.left = "1px";
+        dtcon.style.left = "1px";
+    } else {
+        nav.style.width = "197px";
+        btn.style.left = "207px";
+        mcon.style.left = "220px";
+        dtcon.style.left = "220px";
+    }
+    }
+</script>
+
+
+<!--firebase script type----------------------------------------------------------------------------------------------->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+    import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+    import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBSWNkZIaxudvQFQKiWQl0WcZBh--1UliU",
+        authDomain: "izify-f0dec.firebaseapp.com",
+        databaseURL: "https://izify-f0dec-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "izify-f0dec",
+        storageBucket: "izify-f0dec.appspot.com",
+        messagingSenderId: "327248340505",
+        appId: "1:327248340505:web:bc9a33d4b7505d97cb6c88",
+        measurementId: "G-RTB0Q895P0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+
+
+//display assigned list--------------------------------------------------------
+    function displayAssignedList() {
+    const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+    const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+
+    let auid;
+    if (adminCreds) {
+        auid = adminCreds.uid;
+    }
+
+    let wuid;
+    if (workerCreds) {
+        wuid = workerCreds.uid;
+    }
+
+    if (auid && wuid) {
+        const assignedListRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}/assignedList`);
+
+        onValue(assignedListRef, (snapshot) => {
+            const sentTableContainer = document.getElementById('taskListContainer');
+            sentTableContainer.innerHTML = ''; // Clear any existing content
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const tableData = childSnapshot.val();
+                    
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    if (Array.isArray(tableData.headers)) {
+                        tableData.headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.id = header.id;
+                            th.innerText = header.content;
+                            headerRow.appendChild(th);
+                        });
+                    }
+                    // Create unassign button header
+                    const unassignButtonTh = document.createElement('th');
+                    unassignButtonTh.innerText = '';
+                    headerRow.appendChild(unassignButtonTh);
+                    thead.appendChild(headerRow);
+
+                    // Create body rows
+                    if (Array.isArray(tableData.rows)) {
+                        tableData.rows.forEach((rowData, rowIndex) => {
+                            const row = document.createElement('tr');
+                            if (Array.isArray(rowData)) {
+                                rowData.forEach(cellData => {
+                                    const td = document.createElement('td');
+                                    td.id = cellData.id;
+                                    if (cellData.type === 'datetime') {
+                                        const input = document.createElement('input');
+                                        input.type = 'datetime-local';
+                                        input.value = cellData.content;
+                                        td.appendChild(input);
+                                    } else {
+                                        td.innerText = cellData.content;
+                                    }
+                                    row.appendChild(td);
+                                });
+                            }
+                            // Create unassign button cell
+                            const unassignButtonTd = document.createElement('td');
+                            const unassignButton = document.createElement('button');
+                            unassignButton.id = 'tablebutton';
+                            unassignButton.innerText = 'Accept';
+                            unassignButton.addEventListener('click', () => {
+                                unassignItem(childSnapshot.key, tableData);
+                            });
+                            unassignButtonTd.appendChild(unassignButton);
+                            row.appendChild(unassignButtonTd);
+
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    sentTableContainer.appendChild(table);
+                });
+            } else {
+                console.log('No assigned table data found.');
+                sentTableContainer.innerHTML = '<p>No task.</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching assigned table data:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Function to unassign item and move it back to the sent table
+function unassignItem(itemKey, tableData) {
+    const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+    const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+
+    if (adminCreds && workerCreds) {
+        const adminUid = adminCreds.uid;
+        const workerUid = workerCreds.uid;
+
+        const assignedListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/assignedList/${itemKey}`);
+        const sentTableRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/acceptedList/${itemKey}`);
+
+        set(sentTableRef, tableData).then(() => {
+            console.log(`Item ${itemKey} moved back to sent table.`);
+            return remove(assignedListRef);  // Delete the item from the assigned list
+        }).then(() => {
+            console.log(`Item ${itemKey} deleted from assigned list.`);
+        }).catch((error) => {
+            console.error('Error moving item:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+// Call the function to display the assigned list
+displayAssignedList();
+
+
+    //display Accepted list--------------------------------------------------------
+    function displayAcceptedList() {
+    const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+    const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+
+    let auid;
+    if (adminCreds) {
+        auid = adminCreds.uid;
+    }
+
+    let wuid;
+    if (workerCreds) {
+        wuid = workerCreds.uid;
+    }
+
+    if (auid && wuid) {
+        const acceptedListRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}/acceptedList`);
+
+        onValue(acceptedListRef, (snapshot) => {
+            const sentTableContainer = document.getElementById('acceptedListContainer');
+            sentTableContainer.innerHTML = ''; // Clear any existing content
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const tableData = childSnapshot.val();
+                    
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    if (Array.isArray(tableData.headers)) {
+                        tableData.headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.id = header.id;
+                            th.innerText = header.content;
+                            headerRow.appendChild(th);
+                        });
+                    }
+                    // Create reject button header
+                    const rejectButtonTh = document.createElement('th');
+                    rejectButtonTh.innerText = '';
+                    headerRow.appendChild(rejectButtonTh);
+                    thead.appendChild(headerRow);
+
+                    // Create body rows
+                    if (Array.isArray(tableData.rows)) {
+                        tableData.rows.forEach((rowData, rowIndex) => {
+                            const row = document.createElement('tr');
+                            if (Array.isArray(rowData)) {
+                                rowData.forEach(cellData => {
+                                    const td = document.createElement('td');
+                                    td.id = cellData.id;
+                                    if (cellData.type === 'datetime') {
+                                        const input = document.createElement('input');
+                                        input.type = 'datetime-local';
+                                        input.value = cellData.content;
+                                        td.appendChild(input);
+                                    } else {
+                                        td.innerText = cellData.content;
+                                    }
+                                    row.appendChild(td);
+                                });
+                            }
+                            // Create reject button cell
+                            const rejectButtonTd = document.createElement('td');
+                            const rejectButton = document.createElement('button');
+                            rejectButton.id = 'tablebutton';
+                            rejectButton.innerText = 'Reject';
+                            rejectButton.addEventListener('click', () => {
+                                rejectItem(childSnapshot.key, tableData);
+                            });
+                            rejectButtonTd.appendChild(rejectButton);
+                            row.appendChild(rejectButtonTd);
+
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    sentTableContainer.appendChild(table);
+                });
+            } else {
+                console.log('No Accepted table data found.');
+                sentTableContainer.innerHTML = '<p>No Accepted task.</p>';
+            }
+        }, (error) => {
+            console.error('Error fetching Accepted table data:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+
+// Function to reject item and move it back to the sent table
+function rejectItem(itemKey, tableData) {
+    const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+    const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+
+    if (adminCreds && workerCreds) {
+        const adminUid = adminCreds.uid;
+        const workerUid = workerCreds.uid;
+
+        const acceptedListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/acceptedList/${itemKey}`);
+        const sentTableRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/rejectedList/${itemKey}`);
+
+        set(sentTableRef, tableData).then(() => {
+            console.log(`Item ${itemKey} moved back to sent table.`);
+            return remove(acceptedListRef);  // Delete the item from the accepted list
+        }).then(() => {
+            console.log(`Item ${itemKey} deleted from accepted list.`);
+        }).catch((error) => {
+            console.error('Error moving item:', error);
+        });
+    } else {
+        console.error('Admin or Worker credentials not found in local storage.');
+    }
+}
+// Call the function to display the accepted list
+displayAcceptedList();
+
+
+
+        //display rejected list--------------------------------------------------------
+        function displayRejectedList() {
+            const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+            const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+
+            let auid;
+            if (adminCreds) {
+                auid = adminCreds.uid;
+            }
+
+            let wuid;
+            if (workerCreds) {
+                wuid = workerCreds.uid;
+            }
+
+            if (auid && wuid) {
+                const rejectedListRef = ref(db, `AdminsAuthList/${auid}/workersAuthList/${wuid}/rejectedList`);
+
+                onValue(rejectedListRef, (snapshot) => {
+                    const sentTableContainer = document.getElementById('rejectedListContainer');
+                    sentTableContainer.innerHTML = ''; // Clear any existing content
+
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            const tableData = childSnapshot.val();
+                            
+                            const table = document.createElement('table');
+                            const thead = document.createElement('thead');
+                            const tbody = document.createElement('tbody');
+
+                            // Create header row
+                            const headerRow = document.createElement('tr');
+                            if (Array.isArray(tableData.headers)) {
+                                tableData.headers.forEach(header => {
+                                    const th = document.createElement('th');
+                                    th.id = header.id;
+                                    th.innerText = header.content;
+                                    headerRow.appendChild(th);
+                                });
+                            }
+                            // Create reject button header
+                            const rejectButtonTh = document.createElement('th');
+                            rejectButtonTh.innerText = '';
+                            headerRow.appendChild(rejectButtonTh);
+                            thead.appendChild(headerRow);
+
+                            // Create body rows
+                            if (Array.isArray(tableData.rows)) {
+                                tableData.rows.forEach((rowData, rowIndex) => {
+                                    const row = document.createElement('tr');
+                                    if (Array.isArray(rowData)) {
+                                        rowData.forEach(cellData => {
+                                            const td = document.createElement('td');
+                                            td.id = cellData.id;
+                                            if (cellData.type === 'datetime') {
+                                                const input = document.createElement('input');
+                                                input.type = 'datetime-local';
+                                                input.value = cellData.content;
+                                                td.appendChild(input);
+                                            } else {
+                                                td.innerText = cellData.content;
+                                            }
+                                            row.appendChild(td);
+                                        });
+                                    }
+                                    // Create reject button cell
+                                    const rejectButtonTd = document.createElement('td');
+                                    const rejectButton = document.createElement('button');
+                                    rejectButton.id = 'tablebutton';
+                                    rejectButton.innerText = 'Accept';
+                                    rejectButton.addEventListener('click', () => {
+                                        acceptedItem(childSnapshot.key, tableData);
+                                    });
+                                    rejectButtonTd.appendChild(rejectButton);
+                                    row.appendChild(rejectButtonTd);
+
+                                    tbody.appendChild(row);
+                                });
+                            }
+
+                            table.appendChild(thead);
+                            table.appendChild(tbody);
+                            sentTableContainer.appendChild(table);
+                        });
+                    } else {
+                        console.log('No rejected table data found.');
+                        sentTableContainer.innerHTML = '<p>No rejected task.</p>';
+                    }
+                }, (error) => {
+                    console.error('Error fetching rejected table data:', error);
+                });
+            } else {
+                console.error('Admin or Worker credentials not found in local storage.');
+            }
+        }
+
+        // Function to reject item and move it back to the sent table
+        function acceptedItem(itemKey, tableData) {
+            const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+            const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+
+            if (adminCreds && workerCreds) {
+                const adminUid = adminCreds.uid;
+                const workerUid = workerCreds.uid;
+
+                const rejectedListRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/rejectedList/${itemKey}`);
+                const sentTableRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/acceptedList/${itemKey}`);
+
+                set(sentTableRef, tableData).then(() => {
+                    console.log(`Item ${itemKey} moved back to sent table.`);
+                    return remove(rejectedListRef);  // Delete the item from the rejected list
+                }).then(() => {
+                    console.log(`Item ${itemKey} deleted from rejected list.`);
+                }).catch((error) => {
+                    console.error('Error moving item:', error);
+                });
+            } else {
+                console.error('Admin or Worker credentials not found in local storage.');
+            }
+        }
+        displayRejectedList();
+
+
+        // Function to display company name ---------------------------------------
+        function displayCompanyName() {
+            const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+            if (adminCreds) {
+                const adminUid = adminCreds.uid;
+                const companyNameRef = ref(db, `AdminsAuthList/${adminUid}/companyname`);
+
+                onValue(companyNameRef, (snapshot) => {
+                    const companyName = snapshot.val();
+                    document.getElementById('companyNameInp').value = companyName || 'No company name found';
+                });
+            }
+        }
+        displayCompanyName();
+
+
+        // Function to display worker name ---------------------------------------
+        function displayWorkerDetail() {
+            const adminCreds = JSON.parse(localStorage.getItem('worker-admin-uid'));
+            const workerCreds = JSON.parse(localStorage.getItem('worker-creds'));
+            if (adminCreds && workerCreds) {
+                const adminUid = adminCreds.uid;
+                const workerUid = workerCreds.uid;
+                const workerNameRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/workername`);
+                const workerEmailRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/workeremail`);
+                const workerIdRef = ref(db, `AdminsAuthList/${adminUid}/workersAuthList/${workerUid}/workerid`);
+
+                onValue(workerNameRef, (snapshot) => {
+                    const workerName = snapshot.val();
+                    document.getElementById('workerNameInp').value = workerName || 'No company name found';
+                });
+                onValue(workerEmailRef, (snapshot) => {
+                    const workerEmail = snapshot.val();
+                    document.getElementById('workerEmailInp').value = workerEmail || 'No company name found';
+                });
+                onValue(workerIdRef, (snapshot) => {
+                    const workerId = snapshot.val();
+                    document.getElementById('workerIdInp').value = workerId || 'No company name found';
+                });
+            }
+        }
+        displayWorkerDetail();
+</script>
+</html>
