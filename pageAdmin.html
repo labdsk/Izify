@@ -367,7 +367,7 @@ displayProfileFromLocalStorage();
 
         if (adminInfo && adminCreds) {
             const uid = adminCreds.uid;
-            const newUrl = `${window.location.origin}/pageClient.html?uid=${uid}`;
+            const newUrl = `${window.location.origin}/Izify/pageClient.html?uid=${uid}`;
             
             navigator.clipboard.writeText(newUrl).then(() => {
                 alert("URL copied to clipboard!");
